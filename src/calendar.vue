@@ -87,25 +87,24 @@ export default {
 		dayClass: function () {
 			return (dayNum) => {
 				let dayClass='',
-					forDate = moment(this.viewDate.format('YYYY-MM') + '-' + (dayNum < 10 ? '0' + dayNum : dayNum) );
+					elDate = moment(this.viewDate.format('YYYY-MM') + '-' + (dayNum < 10 ? '0' + dayNum : dayNum) );
 
-				if (forDate.isSame(this.dateStart, 'day')) {
+				if (elDate.isSame(this.dateEnd, 'day') && this.params.type === 'rangedate' ||
+				elDate.isSame(this.dateStart, 'day')) {
 					dayClass = 'active ';
-				} else if (forDate.isSame(this.dateEnd, 'day') && this.params.type === 'rangedate') {
-					dayClass = 'active ';
-				} else {
-					dayClass = '';
 				}
 
 				//Add class for between dates
-				if (this.params.type === 'rangedate' && forDate.isAfter(this.dateStart, 'day') && forDate.isBefore(this.dateEnd, 'day')) {
+				if (this.params.type === 'rangedate' && elDate.isAfter(this.dateStart, 'day') && elDate.isBefore(this.dateEnd, 'day')) {
 					dayClass += 'between ';
 				}
 				
 				//Add class for disabled dates
 				//Check max and min dates
-				if(typeof this.params.minDate === 'object' && forDate.isBefore(this.params.minDate)) dayClass += 'disabled';
-				if(typeof this.params.maxDate === 'object' && forDate.isAfter(this.params.maxDate)) dayClass += 'disabled';
+				if(typeof this.params.minDate === 'object' && elDate.isBefore(this.params.minDate) || 
+				typeof this.params.maxDate === 'object' && elDate.isAfter(this.params.maxDate))  {
+					dayClass += 'disabled';
+				}
 
 				return dayClass + ' vdp__calendar_days_day'
 			}
@@ -228,7 +227,7 @@ export default {
 				if (this.openFromInput === 'start') {
 					if(this.dateEnd === null) {
 						this.openFromInput = 'end';
-						this.dateEnd = date
+						this.dateStart = date;
 					} else {
 						if (date.isAfter(this.dateEnd, 'day')) {
 							this.dateEnd = date;
@@ -252,6 +251,7 @@ export default {
 			} else {
 				this.dateStart = date;
 			}
+			//Dont forgot date is immutable moment object clone it
 			this.viewDate = date.clone();
 			this.emitValues();
         }

@@ -2,9 +2,9 @@
   "name": "vuemomentdaterangepicker",
   "version": "1.0.0",
   "description": "Simple vue component for pick dates",
-  "main": "index.js",
-  "repository": "https://github.com/webislife/jQueryDatePicker.git",
-  "author": "Денис Строков <d.strokov@biglion.tech>",
+  "main": "src/calendar.vue",
+  "repository": "https://github.com/webislife/vue-moment-daterange-picker",
+  "author": "Денис Строков <strokoffdn@gmail.com>",
   "license": "MIT",
   "scripts": {
     "watch": "node_modules/.bin/webpack --watch",

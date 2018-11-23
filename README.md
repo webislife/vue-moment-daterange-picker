@@ -2,11 +2,11 @@
 Simple vie date range picker. Work with moment.js
 [See demo](http://webislife.ru/vuedaterangepicker/demo.html)
 
-### Supports
-- :pushpin: single and range date mode
-- :pushpin: multi locales
-- :pushpin: min and max dates
-- :pushpin: Easy to customize and styling
+### Features
+:pushpin: Single and range date mode
+:pushpin: Multi locales
+:pushpin: Min and max dates
+:pushpin: Easy to customize and styling
 
 ### Available params
     {
@@ -23,10 +23,11 @@ Simple vie date range picker. Work with moment.js
     }
 
 ### Example init
+In template
 ```
 <vue-calendar v-on:vdp-show="onShow" v-on:vdp-hide="onHide" v-on:vdp-change="onDateChange" :options="singleCalendar" />
 ```
-in parent component
+In data
 ```
 data() {
     return {
