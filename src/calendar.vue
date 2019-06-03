@@ -3,25 +3,25 @@
 		<div class="vdp__input_wrapper">
 			<input type="text" 
 				class="vdp__input vdp__input-start"
-				:class="{active: openFromInput === 'start' && isVisible}"
+				:class="{'vdp__input-active': openFromInput === 'start' && isVisible}"
 				:value="dateStart === null ? '' : dateStart.format(params.format)"
 				:placeholder="params.placeholderStart"
 				v-on:click="(e) => e.stopPropagation()"
 				v-on:focus.prevent="showCalendar('start')"
-				readonly>
+				readonly />
 
 			<input type="text"
 				class="vdp__input vdp__input-end" 
-				:class="{active: openFromInput === 'end' && isVisible}"
+				:class="{'vdp__input-active': openFromInput === 'end' && isVisible}"
 				:value="dateEnd === null ? '' : dateEnd.format(params.format)"
 				:placeholder="params.placeholderEnd"
 				v-show="params.type === 'rangedate'"
 				v-on:click="(e) => e.stopPropagation()"
 				v-on:focus.prevent="showCalendar('end')"
-				readonly>
+				readonly />
 		</div>
         
-        <div v-bind:class="{ show: isVisible }" class="vdp">
+        <div v-bind:class="{ 'vdp-show': isVisible }" class="vdp">
             <div class="vdp__wrapper">
                 <div class="vdp__calendar" v-on:click="(e) => e.stopPropagation()">
                     <div class="vdp__calendar_head">
@@ -95,7 +95,9 @@ export default {
 				}
 
 				//Add class for between dates
-				if (this.params.type === 'rangedate' && elDate.isAfter(this.dateStart, 'day') && elDate.isBefore(this.dateEnd, 'day')) {
+				if (this.params.type === 'rangedate' && 
+				elDate.isAfter(this.dateStart, 'day') &&
+				elDate.isBefore(this.dateEnd, 'day')) {
 					dayClass += 'between ';
 				}
 				
@@ -111,14 +113,9 @@ export default {
 		}
     },
     mounted() {
-		let document = window.document;
-		document.addEventListener('click', e => this.hideCalendar(e));
-		//Hide calendar on show another calendar page
-		document.addEventListener('vdp-show', e => this.hideCalendar(e));
-	},
-	beforeDestroy() {
-		let document = window.document;
-		//TODO unsubsctibe events
+		window.document.addEventListener('click', e => this.hideCalendar(e));
+		//Hide calendar on show another calendar at page
+		window.document.addEventListener('vdp-show', e => this.hideCalendar(e));
 	},
 	beforeCreate() {
 		//set default locale
@@ -148,7 +145,7 @@ export default {
         this.dateStart = this.params.startDate;
         this.dateEnd = this.params.endDate;
 
-        // update day names order to firstDayOfWeek 
+        // update day names order by firstDayOfWeek 
         if (this.params.firstDayOfWeek !== 0) {
 			let i = this.params.firstDayOfWeek,
 				weekShortDays = this.weekShortDays.map(d => d);
@@ -162,16 +159,19 @@ export default {
     methods: {
 		/**
 		 * Show calendar and trigger vdp-show event
+		 * @param {String} type calendar type start/end
+		 * @returns {void}
 		 */
         showCalendar(type) {
 			this.openFromInput = type;
-			this.triggerWindowEvent('vdp-show');
+			this.triggerWindowEvent();
 			this.$emit('vdp-show');
             this.isVisible = true;
 		},
 
 		/**
 		 * Hide calendar, set initial viewDate state
+		 * @returns {void}
 		 */
         hideCalendar(event) {
 			if(this.isVisible) {
@@ -183,9 +183,13 @@ export default {
 
 		/**
 		 * Trigger custom event at window.document
+		 * need for close other already opened calendars at page
+		 * @returns {void}
 		 */
-		triggerWindowEvent (eventName) {
-			window.document.dispatchEvent(new CustomEvent(eventName));
+		triggerWindowEvent () {
+			if(typeof window === 'object') {
+				window.document.dispatchEvent(new CustomEvent('vdp-show'));
+			}
 		},
 
         /**
@@ -194,26 +198,27 @@ export default {
          * @param  {String} calendar end or start type 
          * @param  {String} dateType day or week or month or year
          * @param  {String} action add\subtract
-         * @return {void}          
+         * @returns {void}          
          */
         changeViewDate(dateType = 'day', action = 'add') {
 			this.viewDate = moment(this.viewDate[action](1, dateType));
 		},
 		
 		/**
-		 * Emit new date values to top components
+		 * Emit new date values to parent component
+		 * @returns {void}
 		 */
 		emitValues() {
 			this.$emit('vdp-change', {
 				startDate: this.dateStart,
 				endDate: this.dateEnd
-			})
+			});
 		},
 
 		/**
          * Set active date after click on day in calendar
-         * @param {Object} event jquery event
-         * @param {String} type  end or start date type
+         * @param {String} dayNum  day number
+		 * @returns {void}
          */
         setActiveDate(dayNum) {
 			let params = this.params,
@@ -260,7 +265,6 @@ export default {
 </script>
 <style lang="scss" scoped>
 $orange: #FF7F00;
-
 $mainColor: $orange;
 $textColor: #999;
 $cloud: #ecf0f1;
@@ -269,8 +273,8 @@ $cloud: #ecf0f1;
 	z-index: 100;
 	width: 0;
 	height: 0;
-	font-family: sans-serif;
-	&.show { 
+	font-family: 'Roboto', 'Arial', sans-serif;
+	&-show { 
 		width: auto;
 		height: auto;
 		& .vdp__wrapper {
@@ -314,7 +318,7 @@ $cloud: #ecf0f1;
 		&-end {
 			margin-left: 5px;
 		}
-		&:focus, &.active {
+		&:focus, &-active {
 			outline: none;
 			border: 1px solid $mainColor;
 		}
@@ -498,4 +502,3 @@ $cloud: #ecf0f1;
 	}
 }
 </style>
-
